@@ -24,10 +24,10 @@ export interface Inspection {
   notes?: string;
   date: string; // YYYY-MM-DD
   inspectorName: string;
+  photoUrls?: string[];
 }
 
 export interface LocationWithData extends Location {
-  score: number | null;
   latestRating: number | null;
   averageRating: number | null;
   inspectionCount: number;

@@ -5,21 +5,23 @@ import { Trophy, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const MEDALS = ["🥇", "🥈", "🥉"];
-
 const PODIUM_ORDER = [1, 0, 2]; // left=2nd, center=1st, right=3rd
-const STEP_HEIGHTS = ["h-10", "h-16", "h-6"]; // 2nd, 1st, 3rd
+const STEP_HEIGHTS = ["h-5", "h-9", "h-3"];
 const STEP_COLORS = ["bg-slate-200", "bg-amber-200", "bg-orange-200"];
-const CARD_RINGS = [
-  "ring-1 ring-slate-300",
-  "ring-2 ring-amber-300",
-  "ring-1 ring-orange-300",
-];
+const CARD_RINGS = ["ring-1 ring-slate-300", "ring-2 ring-amber-300", "ring-1 ring-orange-300"];
+
+function avgColor(avg: number | null) {
+  if (avg === null) return "text-slate-400";
+  if (avg >= 4.0) return "text-emerald-600";
+  if (avg >= 2.5) return "text-orange-600";
+  return "text-red-600";
+}
 
 export default function LeaderboardPage() {
   const ranked = [...DASHBOARD_DATA]
-    .filter((l) => l.score !== null)
-    .sort((a, b) => b.score! - a.score!)
-    .concat(DASHBOARD_DATA.filter((l) => l.score === null));
+    .filter((l) => l.averageRating !== null)
+    .sort((a, b) => b.averageRating! - a.averageRating!)
+    .concat(DASHBOARD_DATA.filter((l) => l.averageRating === null));
 
   return (
     <div className="p-5 max-w-2xl mx-auto">
@@ -35,23 +37,18 @@ export default function LeaderboardPage() {
             const loc = ranked[rankIdx];
             return (
               <div key={loc.id} className="flex-1 flex flex-col items-center">
-                {/* Card */}
-                <div className={cn("w-full bg-white rounded-2xl p-3 text-center mb-2 shadow-sm", CARD_RINGS[i])}>
-                  <div className="text-2xl mb-1">{MEDALS[rankIdx]}</div>
-                  <p className="text-xs font-semibold text-[#1e1b3a] leading-snug line-clamp-2 min-h-[2.5rem] flex items-center justify-center">
+                <div className={cn("w-full bg-white rounded-xl p-2.5 text-center mb-1.5 shadow-sm", CARD_RINGS[i])}>
+                  <div className="text-xl mb-0.5">{MEDALS[rankIdx]}</div>
+                  <p className="text-xs font-semibold text-[#1e1b3a] leading-snug line-clamp-2">
                     {loc.name}
                   </p>
-                  {loc.score !== null && (
-                    <p className="text-sm font-bold mt-1" style={{ color: "#2563eb" }}>
-                      {loc.score}
+                  {loc.averageRating !== null && (
+                    <p className={cn("text-xs font-bold mt-0.5", avgColor(loc.averageRating))}>
+                      {loc.averageRating.toFixed(1)}★
                     </p>
                   )}
-                  {loc.leaders[0] && (
-                    <p className="text-[10px] text-slate-400 mt-0.5 truncate">{loc.leaders[0].studentName}</p>
-                  )}
                 </div>
-                {/* Podium step */}
-                <div className={cn("w-full rounded-t-lg", STEP_HEIGHTS[i], STEP_COLORS[i])} />
+                <div className={cn("w-full rounded-t-md", STEP_HEIGHTS[i], STEP_COLORS[i])} />
               </div>
             );
           })}
@@ -63,10 +60,7 @@ export default function LeaderboardPage() {
         {ranked.map((loc, idx) => (
           <div
             key={loc.id}
-            className={cn(
-              "flex items-center gap-3 px-4 py-3.5",
-              idx !== 0 && "border-t border-slate-100"
-            )}
+            className={cn("flex items-center gap-3 px-4 py-3.5", idx !== 0 && "border-t border-slate-100")}
           >
             <span className="w-7 text-center flex-shrink-0 text-sm font-bold text-slate-400">
               {idx < 3 ? MEDALS[idx] : idx + 1}
@@ -82,9 +76,9 @@ export default function LeaderboardPage() {
                 </div>
               )}
             </div>
-            {loc.score !== null && (
-              <span className="text-sm font-bold flex-shrink-0" style={{ color: "#2563eb" }}>
-                {loc.score}
+            {loc.averageRating !== null && (
+              <span className={cn("text-sm font-bold flex-shrink-0", avgColor(loc.averageRating))}>
+                {loc.averageRating.toFixed(1)}★
               </span>
             )}
           </div>

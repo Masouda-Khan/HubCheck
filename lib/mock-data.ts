@@ -84,16 +84,9 @@ export const DASHBOARD_DATA: LocationWithData[] = LOCATIONS.map((loc) => {
     all.length > 0
       ? Math.round((all.reduce((s, i) => s + i.rating, 0) / all.length) * 10) / 10
       : null;
-  // score is based on last 3 inspections (recency-weighted)
-  const recent = all.slice(0, 3);
-  const score =
-    recent.length > 0
-      ? Math.round((recent.reduce((s, i) => s + i.rating, 0) / recent.length) * 20)
-      : null;
 
   return {
     ...loc,
-    score,
     latestRating: latest?.rating ?? null,
     averageRating,
     inspectionCount: all.length,

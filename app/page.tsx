@@ -7,46 +7,36 @@ import { Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LocationWithData } from "@/lib/types";
 
-function scorePill(score: number | null) {
-  if (score === null) return { bg: "bg-slate-100", text: "text-slate-400", label: "—" };
-  if (score >= 80) return { bg: "bg-emerald-100", text: "text-emerald-700", label: String(score) };
-  if (score >= 50) return { bg: "bg-amber-100", text: "text-amber-700", label: String(score) };
-  return { bg: "bg-red-100", text: "text-red-700", label: String(score) };
-}
-
-function borderColor(score: number | null) {
-  if (score === null) return "border-l-slate-300";
-  if (score >= 80) return "border-l-emerald-400";
-  if (score >= 50) return "border-l-amber-400";
-  return "border-l-red-400";
+function getStatus(avg: number | null) {
+  if (avg === null) return { border: "border-l-slate-300", pill: "bg-slate-100 text-slate-400", label: "—" };
+  if (avg >= 4.0) return { border: "border-l-emerald-400", pill: "bg-emerald-100 text-emerald-700", label: avg.toFixed(1) };
+  if (avg >= 2.5) return { border: "border-l-orange-400", pill: "bg-orange-100 text-orange-700", label: avg.toFixed(1) };
+  return { border: "border-l-red-400", pill: "bg-red-100 text-red-700", label: avg.toFixed(1) };
 }
 
 function LocationCard({ loc }: { loc: LocationWithData }) {
-  const pill = scorePill(loc.score);
+  const status = getStatus(loc.averageRating);
 
   return (
-    <div className={cn("bg-white rounded-2xl border border-slate-200/70 border-l-4 shadow-sm p-4 flex flex-col gap-2.5", borderColor(loc.score))}>
-      {/* Row 1: name + score */}
+    <div className={cn("bg-white rounded-2xl border border-slate-200/70 border-l-4 shadow-sm p-4 flex flex-col gap-2.5", status.border)}>
       <div className="flex items-start justify-between gap-3">
         <p className="font-semibold text-[#1e1b3a] text-sm leading-snug">{loc.name}</p>
-        <span className={cn("text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0 tabular-nums", pill.bg, pill.text)}>
-          {pill.label}
+        <span className={cn("text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0", status.pill)}>
+          {status.label}
         </span>
       </div>
 
-      {/* Row 2: stars + avg */}
       <div className="flex items-center gap-2">
         {loc.latestRating !== null ? (
           <StarRating value={loc.latestRating} readonly size="sm" />
         ) : (
           <span className="text-xs text-slate-400 italic">No inspections</span>
         )}
-        {loc.averageRating !== null && (
+        {loc.averageRating !== null && loc.inspectionCount > 1 && (
           <span className="text-xs text-slate-400">{loc.averageRating.toFixed(1)} avg</span>
         )}
       </div>
 
-      {/* Row 3: leader */}
       {loc.leaders.length > 0 ? (
         <div className="flex items-center gap-1.5">
           <Crown className="h-3 w-3 text-amber-500 flex-shrink-0" />
@@ -64,10 +54,10 @@ function LocationCard({ loc }: { loc: LocationWithData }) {
 export default function DashboardPage() {
   const [data] = useState(DASHBOARD_DATA);
 
-  const withScores = data.filter((l) => l.averageRating !== null);
-  const avgStar =
-    withScores.length > 0
-      ? (withScores.reduce((s, l) => s + (l.averageRating ?? 0), 0) / withScores.length).toFixed(1)
+  const withRatings = data.filter((l) => l.averageRating !== null);
+  const overallAvg =
+    withRatings.length > 0
+      ? (withRatings.reduce((s, l) => s + l.averageRating!, 0) / withRatings.length).toFixed(1)
       : null;
 
   return (
@@ -76,7 +66,9 @@ export default function DashboardPage() {
         <h1 className="text-xl font-bold" style={{ color: "#1e1b3a" }}>Innovation Hub</h1>
         <p className="text-sm text-slate-500 mt-0.5">
           {data.length} locations
-          {avgStar && <> · <span style={{ color: "#2563eb" }}>{avgStar}★</span> avg</>}
+          {overallAvg && (
+            <> · <span style={{ color: "#2563eb" }}>{overallAvg}★</span> avg</>
+          )}
         </p>
       </div>
 
