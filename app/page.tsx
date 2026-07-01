@@ -18,7 +18,7 @@ type Priority = "low" | "high" | "safety";
 function getStatus(avg: number | null) {
   if (avg === null) return { border: "border-l-slate-200", pill: "bg-slate-100 text-slate-400" };
   if (avg >= 4.0) return { border: "border-l-[#a2dbb7]", pill: "bg-[#edf8f3] text-[#5da080]" };
-  if (avg >= 2.5) return { border: "border-l-[#edd99a]", pill: "bg-[#fefcf0] text-[#c4a040]" };
+  if (avg >= 2.5) return { border: "border-l-[#e0dd9f]", pill: "bg-[#fafae8] text-[#a8a545]" };
   return { border: "border-l-[#f5c4c4]", pill: "bg-[#fff4f4] text-[#c47a7a]" };
 }
 

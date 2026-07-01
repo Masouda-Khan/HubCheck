@@ -21,7 +21,7 @@ const CARD_RINGS = ["ring-1 ring-slate-300", "ring-2 ring-amber-300", "ring-1 ri
 function avgColor(avg: number | null) {
   if (avg === null) return "text-slate-400";
   if (avg >= 4.0) return "text-[#5da080]";
-  if (avg >= 2.5) return "text-[#c4a040]";
+  if (avg >= 2.5) return "text-[#a8a545]";
   return "text-[#c47a7a]";
 }
 
