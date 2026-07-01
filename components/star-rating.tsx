@@ -7,11 +7,14 @@ interface StarRatingProps {
   value: number;
   onChange?: (v: number) => void;
   readonly?: boolean;
+  size?: "sm" | "md";
 }
 
-export function StarRating({ value, onChange, readonly }: StarRatingProps) {
+export function StarRating({ value, onChange, readonly, size = "md" }: StarRatingProps) {
+  const starClass = size === "sm" ? "h-4 w-4" : "h-7 w-7";
+
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((star) => (
         <button
           key={star}
@@ -27,7 +30,7 @@ export function StarRating({ value, onChange, readonly }: StarRatingProps) {
         >
           <Star
             className={cn(
-              "h-7 w-7",
+              starClass,
               star <= value
                 ? "fill-amber-400 text-amber-400"
                 : "fill-none text-slate-300"
