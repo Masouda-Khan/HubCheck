@@ -17,9 +17,9 @@ type Priority = "low" | "high" | "safety";
 
 function getStatus(avg: number | null) {
   if (avg === null) return { border: "border-l-slate-200", pill: "bg-slate-100 text-slate-400" };
-  if (avg >= 4.0) return { border: "border-l-emerald-300", pill: "bg-emerald-50 text-emerald-600" };
-  if (avg >= 2.5) return { border: "border-l-amber-300", pill: "bg-amber-50 text-amber-600" };
-  return { border: "border-l-rose-300", pill: "bg-rose-50 text-rose-500" };
+  if (avg >= 4.0) return { border: "border-l-[#a2dbb7]", pill: "bg-[#edf8f3] text-[#5da080]" };
+  if (avg >= 2.5) return { border: "border-l-[#edd99a]", pill: "bg-[#fefcf0] text-[#c4a040]" };
+  return { border: "border-l-[#f5c4c4]", pill: "bg-[#fff4f4] text-[#c47a7a]" };
 }
 
 const PRIORITY_STYLES = {

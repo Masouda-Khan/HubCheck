@@ -20,9 +20,9 @@ const CARD_RINGS = ["ring-1 ring-slate-300", "ring-2 ring-amber-300", "ring-1 ri
 
 function avgColor(avg: number | null) {
   if (avg === null) return "text-slate-400";
-  if (avg >= 4.0) return "text-emerald-500";
-  if (avg >= 2.5) return "text-amber-500";
-  return "text-rose-400";
+  if (avg >= 4.0) return "text-[#5da080]";
+  if (avg >= 2.5) return "text-[#c4a040]";
+  return "text-[#c47a7a]";
 }
 
 function ShoutoutDialog({ open, onClose, locations }: { open: boolean; onClose: () => void; locations: any[] }) {
