@@ -4,6 +4,23 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* itkanscout brand palette */
+:root {
+  --brand-blue: #2563eb;
+  --brand-blue-dark: #1e3a8a;
+  --brand-purple: #7c3aed;
+  --brand-purple-dark: #4c1d95;
+  --brand-bg: #f5f5ff;
+  --brand-fg: #1e1b3a;
+}
+
+@theme inline {
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-dark: var(--brand-blue-dark);
+  --color-brand-purple: var(--brand-purple);
+  --color-brand-purple-dark: var(--brand-purple-dark);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -49,8 +66,8 @@
 }
 
 :root {
-  --background: oklch(0.98 0.003 247);
-  --foreground: oklch(0.145 0 0);
+  --background: #f5f5ff;
+  --foreground: #1e1b3a;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);

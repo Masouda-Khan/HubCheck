@@ -17,9 +17,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${geist.className} bg-slate-50 antialiased`}>
+      <body className={`${geist.className} antialiased`} style={{ background: "#f5f5ff" }}>
         <Nav />
-        <main className="md:ml-56 min-h-screen pb-24 md:pb-0">{children}</main>
+        <main className="md:ml-56 min-h-screen">{children}</main>
       </body>
     </html>
   );

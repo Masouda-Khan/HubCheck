@@ -28,6 +28,9 @@ export interface Inspection {
 
 export interface LocationWithData extends Location {
   score: number | null;
+  latestRating: number | null;
+  averageRating: number | null;
+  inspectionCount: number;
   latestInspection: Inspection | null;
   leaders: Assignment[];
   members: Assignment[];

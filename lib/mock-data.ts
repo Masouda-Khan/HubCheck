@@ -77,17 +77,28 @@ export const INSPECTIONS: Inspection[] = LOCATIONS.flatMap((loc, locIdx) =>
   }))
 );
 
-function computeScore(locationId: string): number | null {
-  const recent = INSPECTIONS.filter((i) => i.locationId === locationId).slice(0, 3);
-  if (!recent.length) return null;
-  const avg = recent.reduce((s, i) => s + i.rating, 0) / recent.length;
-  return Math.round(avg * 20);
-}
+export const DASHBOARD_DATA: LocationWithData[] = LOCATIONS.map((loc) => {
+  const all = INSPECTIONS.filter((i) => i.locationId === loc.id);
+  const latest = all[0] ?? null;
+  const averageRating =
+    all.length > 0
+      ? Math.round((all.reduce((s, i) => s + i.rating, 0) / all.length) * 10) / 10
+      : null;
+  // score is based on last 3 inspections (recency-weighted)
+  const recent = all.slice(0, 3);
+  const score =
+    recent.length > 0
+      ? Math.round((recent.reduce((s, i) => s + i.rating, 0) / recent.length) * 20)
+      : null;
 
-export const DASHBOARD_DATA: LocationWithData[] = LOCATIONS.map((loc) => ({
-  ...loc,
-  score: computeScore(loc.id),
-  latestInspection: INSPECTIONS.find((i) => i.locationId === loc.id) ?? null,
-  leaders: ASSIGNMENTS.filter((a) => a.locationId === loc.id && a.isLeader),
-  members: ASSIGNMENTS.filter((a) => a.locationId === loc.id && !a.isLeader),
-}));
+  return {
+    ...loc,
+    score,
+    latestRating: latest?.rating ?? null,
+    averageRating,
+    inspectionCount: all.length,
+    latestInspection: latest,
+    leaders: ASSIGNMENTS.filter((a) => a.locationId === loc.id && a.isLeader),
+    members: ASSIGNMENTS.filter((a) => a.locationId === loc.id && !a.isLeader),
+  };
+});
