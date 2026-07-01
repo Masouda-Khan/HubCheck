@@ -10,11 +10,27 @@ export const getData = query({
 
     return Promise.all(
       locations.map(async (location) => {
-        const recentInspections = await ctx.db
+        const allInspections = await ctx.db
           .query("inspections")
           .withIndex("by_location", (q) => q.eq("locationId", location._id))
           .order("desc")
-          .take(3);
+          .collect();
+
+        const latestInspection = allInspections[0] ?? null;
+        const latestRating = latestInspection?.rating ?? null;
+
+        const averageRating =
+          allInspections.length > 0
+            ? Math.round(
+                (allInspections.reduce((s, i) => s + i.rating, 0) / allInspections.length) * 10
+              ) / 10
+            : null;
+
+        let streak = 0;
+        for (const insp of allInspections) {
+          if (insp.rating >= 4) streak++;
+          else break;
+        }
 
         const assignments = await ctx.db
           .query("assignments")
@@ -28,19 +44,15 @@ export const getData = query({
           })
         );
 
-        const score =
-          recentInspections.length > 0
-            ? Math.round(
-                (recentInspections.reduce((sum, i) => sum + i.rating, 0) /
-                  recentInspections.length) *
-                  20
-              )
-            : null;
-
         return {
-          ...location,
-          score,
-          latestInspection: recentInspections[0] ?? null,
+          _id: location._id,
+          name: location.name,
+          isActive: location.isActive,
+          latestRating,
+          averageRating,
+          inspectionCount: allInspections.length,
+          streak,
+          latestInspection,
           leaders: assignmentsWithNames.filter((a) => a.isLeader),
           members: assignmentsWithNames.filter((a) => !a.isLeader),
         };

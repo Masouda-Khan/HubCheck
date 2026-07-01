@@ -25,17 +25,16 @@ const SAMPLE_STUDENTS = [
   "Alex Thompson",
 ];
 
-// ratings per location for weeks 0–3 (most recent first)
 const INSPECTION_RATINGS = [
-  [5, 4, 5, 4], // FRC Field
-  [4, 4, 3, 4], // Driver Stations
-  [5, 5, 4, 5], // Workshop
-  [3, 2, 3, 2], // Pits Area
-  [4, 3, 4, 3], // Volleyball
-  [4, 4, 4, 3], // Computer Lab
-  [2, 2, 3, 2], // Study Area
-  [5, 4, 5, 4], // FLL Area
-  [3, 3, 4, 3], // Storage
+  [5, 4, 5, 4],
+  [4, 4, 3, 4],
+  [5, 5, 4, 5],
+  [3, 2, 3, 2],
+  [4, 3, 4, 3],
+  [4, 4, 4, 3],
+  [2, 2, 3, 2],
+  [5, 4, 5, 4],
+  [3, 3, 4, 3],
 ];
 
 const ASSIGNMENT_MAP = [
@@ -60,6 +59,18 @@ const ASSIGNMENT_MAP = [
   { locIdx: 8, stuIdx: 9, isLeader: false },
 ];
 
+const CHECKLIST_TEMPLATES = [
+  ["Clear field of debris", "Check game pieces", "Sweep playing area", "Remove stray tools"],
+  ["Wipe driver stations", "Check electronics", "Remove trash"],
+  ["Sweep floor", "Return tools to pegboard", "Empty trash", "Wipe workbenches", "Organize materials", "Ensure power tools are off"],
+  ["Clear pits of debris", "Remove unused parts", "Sweep pits", "Return tools"],
+  ["Clear court of obstructions", "Store equipment properly", "Sweep/mop floor"],
+  ["Log off all computers", "Wipe desks", "Organize cables", "Empty trash", "Stack chairs"],
+  ["Organize study materials", "Label and store parts", "Empty trash", "Wipe tables"],
+  ["Clear FLL field", "Store game pieces", "Wipe tables", "Sweep area"],
+  ["Organize storage items", "Check security equipment", "Tidy front desk", "Remove trash"],
+];
+
 export const seedData = mutation({
   args: {},
   handler: async (ctx) => {
@@ -67,15 +78,11 @@ export const seedData = mutation({
     if (existing) return { alreadySeeded: true };
 
     const locationIds = await Promise.all(
-      DEFAULT_LOCATIONS.map((name) =>
-        ctx.db.insert("locations", { name, isActive: true })
-      )
+      DEFAULT_LOCATIONS.map((name) => ctx.db.insert("locations", { name, isActive: true }))
     );
 
     const studentIds = await Promise.all(
-      SAMPLE_STUDENTS.map((name) =>
-        ctx.db.insert("students", { name, isActive: true })
-      )
+      SAMPLE_STUDENTS.map((name) => ctx.db.insert("students", { name, isActive: true }))
     );
 
     await Promise.all(
@@ -89,23 +96,27 @@ export const seedData = mutation({
     );
 
     const today = new Date();
-    const inspectionInserts = [];
     for (let locIdx = 0; locIdx < locationIds.length; locIdx++) {
       for (let week = 0; week < 4; week++) {
         const d = new Date(today);
         d.setDate(d.getDate() - week * 7);
-        const date = d.toISOString().split("T")[0];
-        inspectionInserts.push(
-          ctx.db.insert("inspections", {
-            locationId: locationIds[locIdx],
-            rating: INSPECTION_RATINGS[locIdx][week],
-            date,
-            inspectorName: "Admin",
-          })
-        );
+        await ctx.db.insert("inspections", {
+          locationId: locationIds[locIdx],
+          rating: INSPECTION_RATINGS[locIdx][week],
+          date: d.toISOString().split("T")[0],
+          inspectorName: "Admin",
+        });
       }
     }
-    await Promise.all(inspectionInserts);
+
+    await Promise.all(
+      locationIds.map((locationId, idx) =>
+        ctx.db.insert("checklistTemplates", {
+          locationId,
+          items: CHECKLIST_TEMPLATES[idx],
+        })
+      )
+    );
 
     return { seeded: true };
   },

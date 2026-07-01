@@ -4,7 +4,24 @@ import { mutation, query } from "./_generated/server";
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    return ctx.db.query("students").collect();
+    const students = await ctx.db.query("students").collect();
+    return Promise.all(
+      students.map(async (s) => {
+        const assignment = await ctx.db
+          .query("assignments")
+          .withIndex("by_student", (q) => q.eq("studentId", s._id))
+          .first();
+        let locationName: string | null = null;
+        if (assignment) {
+          const loc = await ctx.db.get(assignment.locationId);
+          locationName = loc?.name ?? null;
+        }
+        return {
+          ...s,
+          assignment: assignment ? { ...assignment, locationName } : null,
+        };
+      })
+    );
   },
 });
 

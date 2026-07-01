@@ -1,23 +1,35 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Users, MapPin, ClipboardCheck, Trophy, Menu, X, ListTodo } from "lucide-react";
+import { LayoutDashboard, Users, MapPin, ClipboardCheck, Trophy, Menu, X, ListTodo, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/lib/auth-context";
 
-const NAV_ITEMS = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/students", label: "Students", icon: Users },
-  { href: "/locations", label: "Locations", icon: MapPin },
-  { href: "/inspect", label: "Inspect", icon: ClipboardCheck },
-  { href: "/checklists", label: "Checklists", icon: ListTodo },
-  { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
+const ALL_NAV_ITEMS = [
+  { href: "/", label: "Dashboard", icon: LayoutDashboard, adminOnly: false },
+  { href: "/students", label: "Students", icon: Users, adminOnly: true },
+  { href: "/locations", label: "Locations", icon: MapPin, adminOnly: true },
+  { href: "/inspect", label: "Inspect", icon: ClipboardCheck, adminOnly: true },
+  { href: "/checklists", label: "Checklists", icon: ListTodo, adminOnly: false },
+  { href: "/leaderboard", label: "Leaderboard", icon: Trophy, adminOnly: false },
 ];
 
 export function Nav() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { session, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  if (!session || pathname === "/login") return null;
+
+  const navItems = ALL_NAV_ITEMS.filter((item) => !item.adminOnly || session.role === "admin");
+
+  function handleLogout() {
+    logout();
+    router.push("/login");
+  }
 
   return (
     <>
@@ -30,8 +42,9 @@ export function Nav() {
           <span className="text-lg font-bold text-white tracking-tight">HubCheck</span>
           <p className="text-xs text-white/50 mt-0.5">Innovation Hub</p>
         </div>
+
         <nav className="flex flex-col gap-1 p-3 flex-1">
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+          {navItems.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
@@ -47,8 +60,19 @@ export function Nav() {
             </Link>
           ))}
         </nav>
-        <div className="px-5 py-4 border-t border-white/10">
-          <p className="text-xs text-white/30">Admin · HubCheck</p>
+
+        <div className="px-3 py-4 border-t border-white/10">
+          <div className="px-3 pb-2">
+            <p className="text-xs text-white/50 truncate">{session.name}</p>
+            <p className="text-xs text-white/30 capitalize">{session.role}</p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-sm text-white/50 hover:bg-white/10 hover:text-white transition-colors"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign out
+          </button>
         </div>
       </aside>
 
@@ -73,7 +97,7 @@ export function Nav() {
           className="md:hidden fixed top-14 left-0 right-0 z-20 border-b border-white/10 px-3 pb-3 pt-2"
           style={{ background: "#4c1d95" }}
         >
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => (
+          {navItems.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
@@ -89,6 +113,13 @@ export function Nav() {
               {label}
             </Link>
           ))}
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 w-full px-3 py-3 rounded-xl text-sm font-medium text-white/50 hover:bg-white/10 hover:text-white transition-colors mt-1 border-t border-white/10 pt-3"
+          >
+            <LogOut className="h-4 w-4" />
+            Sign out · {session.name}
+          </button>
         </nav>
       )}
     </>

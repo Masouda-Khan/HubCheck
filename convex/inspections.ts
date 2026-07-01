@@ -8,6 +8,7 @@ export const add = mutation({
     notes: v.optional(v.string()),
     date: v.string(),
     inspectorName: v.string(),
+    photoUrls: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     if (args.rating < 1 || args.rating > 5 || !Number.isInteger(args.rating)) {
@@ -20,11 +21,10 @@ export const add = mutation({
     if (!/^\d{4}-\d{2}-\d{2}$/.test(args.date)) {
       throw new Error("Invalid date format");
     }
-    const trimmedNotes = args.notes?.trim();
     return ctx.db.insert("inspections", {
       ...args,
       inspectorName: trimmedInspector,
-      notes: trimmedNotes || undefined,
+      notes: args.notes?.trim() || undefined,
     });
   },
 });
@@ -36,6 +36,6 @@ export const getByLocation = query({
       .query("inspections")
       .withIndex("by_location", (q) => q.eq("locationId", locationId))
       .order("desc")
-      .collect();
+      .take(10);
   },
 });
