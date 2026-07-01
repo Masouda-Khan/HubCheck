@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Nav } from "@/components/nav";
+import { StoreProvider } from "@/lib/store";
 
 const font = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -18,8 +19,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={font.variable}>
       <body className={`${font.className} antialiased`} style={{ background: "#f5f5ff" }}>
-        <Nav />
-        <main className="md:ml-56 min-h-screen">{children}</main>
+        <StoreProvider>
+          <Nav />
+          <main className="md:ml-56 min-h-screen">{children}</main>
+        </StoreProvider>
       </body>
     </html>
   );

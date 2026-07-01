@@ -3,15 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import {
-  LayoutDashboard,
-  Users,
-  MapPin,
-  ClipboardCheck,
-  Trophy,
-  Menu,
-  X,
-} from "lucide-react";
+import { LayoutDashboard, Users, MapPin, ClipboardCheck, Trophy, Menu, X, ListTodo } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
@@ -19,6 +11,7 @@ const NAV_ITEMS = [
   { href: "/students", label: "Students", icon: Users },
   { href: "/locations", label: "Locations", icon: MapPin },
   { href: "/inspect", label: "Inspect", icon: ClipboardCheck },
+  { href: "/checklists", label: "Checklists", icon: ListTodo },
   { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
 ];
 

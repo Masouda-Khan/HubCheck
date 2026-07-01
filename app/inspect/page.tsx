@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { LOCATIONS, INSPECTIONS } from "@/lib/mock-data";
+import { LOCATIONS } from "@/lib/mock-data";
+import { useStore } from "@/lib/store";
 import type { Inspection } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,7 +19,7 @@ const RATING_LABELS: Record<number, string> = {
 const MAX_PHOTOS = 5;
 
 export default function InspectPage() {
-  const [inspections, setInspections] = useState<Inspection[]>(INSPECTIONS);
+  const { inspections, addInspection } = useStore();
   const [locationId, setLocationId] = useState("");
   const [rating, setRating] = useState(0);
   const [notes, setNotes] = useState("");
@@ -72,7 +73,7 @@ export default function InspectPage() {
       inspectorName: inspectorName.trim(),
       photoUrls: photoPreviews.length ? [...photoPreviews] : undefined,
     };
-    setInspections((prev) => [newInspection, ...prev]);
+    addInspection(newInspection);
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);

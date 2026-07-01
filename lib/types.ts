@@ -27,10 +27,39 @@ export interface Inspection {
   photoUrls?: string[];
 }
 
+export interface Flag {
+  id: string;
+  locationId: string;
+  reason: string;
+  priority: "low" | "high" | "safety";
+  flaggedBy: string;
+  createdAt: string;
+  resolved: boolean;
+  volunteers: string[];
+}
+
+export interface Shoutout {
+  id: string;
+  locationId: string;
+  message: string;
+  givenBy: string;
+  createdAt: string;
+}
+
+export interface ChecklistRun {
+  id: string;
+  locationId: string;
+  date: string;
+  completedBy: string;
+  checkedItems: string[];
+  totalItems: number;
+}
+
 export interface LocationWithData extends Location {
   latestRating: number | null;
   averageRating: number | null;
   inspectionCount: number;
+  streak: number;
   latestInspection: Inspection | null;
   leaders: Assignment[];
   members: Assignment[];

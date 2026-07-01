@@ -1,4 +1,4 @@
-import type { Location, Student, Assignment, Inspection, LocationWithData } from "./types";
+import type { Location, Student, Assignment, Inspection, Flag, LocationWithData } from "./types";
 
 export const LOCATIONS: Location[] = [
   { id: "loc-1", name: "FRC Field", isActive: true },
@@ -53,17 +53,16 @@ function daysAgo(n: number): string {
   return d.toISOString().split("T")[0];
 }
 
-// ratings[locIdx][weekIdx] — most recent first
 const RATINGS: number[][] = [
-  [5, 4, 5, 4], // FRC Field
-  [4, 4, 3, 4], // Driver Stations
-  [5, 5, 4, 5], // Workshop
-  [3, 2, 3, 2], // Pits Area
-  [4, 3, 4, 3], // Volleyball
-  [4, 4, 4, 3], // Computer Lab
-  [2, 2, 3, 2], // Study Area
-  [5, 4, 5, 4], // FLL Area
-  [3, 3, 4, 3], // Storage
+  [5, 4, 5, 4], // FRC Field       — streak 4
+  [4, 4, 3, 4], // Driver Stations — streak 2
+  [5, 5, 4, 5], // Workshop        — streak 4
+  [3, 2, 3, 2], // Pits Area       — streak 0
+  [4, 3, 4, 3], // Volleyball      — streak 1
+  [4, 4, 4, 3], // Computer Lab    — streak 3
+  [2, 2, 3, 2], // Study Area      — streak 0
+  [5, 4, 5, 4], // FLL Area        — streak 4
+  [3, 3, 4, 3], // Storage         — streak 0
 ];
 
 export const INSPECTIONS: Inspection[] = LOCATIONS.flatMap((loc, locIdx) =>
@@ -77,21 +76,73 @@ export const INSPECTIONS: Inspection[] = LOCATIONS.flatMap((loc, locIdx) =>
   }))
 );
 
-export const DASHBOARD_DATA: LocationWithData[] = LOCATIONS.map((loc) => {
-  const all = INSPECTIONS.filter((i) => i.locationId === loc.id);
+export const CHECKLIST_TEMPLATES: Record<string, string[]> = {
+  "loc-1": ["Clear field of debris", "Check game pieces", "Sweep playing area", "Remove stray tools"],
+  "loc-2": ["Wipe driver station surfaces", "Coil cables neatly", "Return radio equipment", "Check laptop batteries"],
+  "loc-3": ["Sweep floor", "Return tools to pegboard", "Empty trash", "Wipe workbenches", "Organize materials", "Ensure power tools are off"],
+  "loc-4": ["Clear aisles of pit materials", "Organize pit bins", "Sweep pit area", "Return shared tools"],
+  "loc-5": ["Clear sports equipment", "Sweep floor", "Put away nets and gear", "Tidy seating area"],
+  "loc-6": ["Log off all computers", "Return FTC build materials", "Wipe keyboards", "Organize cables", "Empty trash"],
+  "loc-7": ["Return parts to inventory bins", "Label unlabeled parts", "Tidy study tables", "Return chairs", "Empty trash"],
+  "loc-8": ["Organize FLL field", "Store robot materials", "Return FLL kits", "Clear table surfaces"],
+  "loc-9": ["Organize storage shelves", "Clean front desk", "File loose papers", "Ensure storage is locked"],
+};
+
+export const SAMPLE_FLAGS: Flag[] = [
+  {
+    id: "flag-1",
+    locationId: "loc-7",
+    reason: "Wet floor near electrical outlets — needs immediate attention",
+    priority: "safety",
+    flaggedBy: "Jordan Chen",
+    createdAt: daysAgo(1),
+    resolved: false,
+    volunteers: ["Marco Rivera"],
+  },
+  {
+    id: "flag-2",
+    locationId: "loc-4",
+    reason: "Major cleanup needed after yesterday's practice session",
+    priority: "high",
+    flaggedBy: "Admin",
+    createdAt: daysAgo(0),
+    resolved: false,
+    volunteers: [],
+  },
+];
+
+export function computeLocationData(
+  loc: Location,
+  inspections: Inspection[]
+): LocationWithData {
+  const all = inspections
+    .filter((i) => i.locationId === loc.id)
+    .sort((a, b) => b.date.localeCompare(a.date));
+
   const latest = all[0] ?? null;
   const averageRating =
     all.length > 0
       ? Math.round((all.reduce((s, i) => s + i.rating, 0) / all.length) * 10) / 10
       : null;
 
+  let streak = 0;
+  for (const insp of all) {
+    if (insp.rating >= 4) streak++;
+    else break;
+  }
+
   return {
     ...loc,
     latestRating: latest?.rating ?? null,
     averageRating,
     inspectionCount: all.length,
+    streak,
     latestInspection: latest,
     leaders: ASSIGNMENTS.filter((a) => a.locationId === loc.id && a.isLeader),
     members: ASSIGNMENTS.filter((a) => a.locationId === loc.id && !a.isLeader),
   };
-});
+}
+
+export const DASHBOARD_DATA: LocationWithData[] = LOCATIONS.map((loc) =>
+  computeLocationData(loc, INSPECTIONS)
+);
