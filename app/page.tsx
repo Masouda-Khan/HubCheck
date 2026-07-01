@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Crown, Flame, Flag, AlertTriangle, HandHelping, CheckCircle2 } from "lucide-react";
+import { Crown, Flag, AlertTriangle, HandHelping, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LocationWithData, Flag as FlagType } from "@/lib/types";
 
@@ -188,10 +188,16 @@ function HelpNeeded() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[#1e1b3a]">{loc?.name}</p>
                   <p className="text-xs text-slate-500 mt-0.5">{flag.reason}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">
-                    Flagged by {flag.flaggedBy}
-                    {flag.volunteers.length > 0 && ` · ${flag.volunteers.length} volunteer${flag.volunteers.length > 1 ? "s" : ""}: ${flag.volunteers.join(", ")}`}
-                  </p>
+                  <p className="text-xs text-slate-400 mt-0.5">Flagged by {flag.flaggedBy}</p>
+                  {flag.volunteers.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {flag.volunteers.map((v) => (
+                        <span key={v} className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full font-medium">
+                          ✓ {v}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="flex gap-2">
@@ -235,21 +241,14 @@ function LocationCard({ loc }: { loc: LocationWithData }) {
     <>
       <div className={cn("bg-white rounded-2xl border border-slate-200/70 border-l-4 shadow-sm flex flex-col", status.border)}>
         <div className="p-4 flex flex-col gap-2.5 flex-1">
-          {/* Row 1: name + avg pill + streak */}
+          {/* Row 1: name + avg pill */}
           <div className="flex items-start justify-between gap-2">
             <p className="font-semibold text-[#1e1b3a] text-sm leading-snug">{loc.name}</p>
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              {loc.streak >= 2 && (
-                <span className="flex items-center gap-0.5 text-xs text-orange-500 font-semibold">
-                  <Flame className="h-3 w-3" />{loc.streak}
-                </span>
-              )}
-              {loc.averageRating !== null && (
-                <span className={cn("text-xs font-bold px-2 py-0.5 rounded-full", status.pill)}>
-                  {loc.averageRating.toFixed(1)}
-                </span>
-              )}
-            </div>
+            {loc.averageRating !== null && (
+              <span className={cn("text-xs font-bold px-2 py-0.5 rounded-full flex-shrink-0", status.pill)}>
+                {loc.averageRating.toFixed(1)} avg
+              </span>
+            )}
           </div>
 
           {/* Row 2: stars */}
@@ -266,7 +265,7 @@ function LocationCard({ loc }: { loc: LocationWithData }) {
           {/* Row 3: leader */}
           {loc.leaders.length > 0 ? (
             <div className="flex items-center gap-1.5">
-              <Crown className="h-3 w-3 text-amber-500 flex-shrink-0" />
+              <Crown className="h-3 w-3 flex-shrink-0 text-yellow-500" />
               <span className="text-xs text-slate-600 truncate">{loc.leaders.map((l) => l.studentName).join(", ")}</span>
             </div>
           ) : (
